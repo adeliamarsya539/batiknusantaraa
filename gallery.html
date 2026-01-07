@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batik Nusantara - Gallery</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #3a1410 0%, #5a2e28 50%, #3a1410 100%);
+            color: #fff;
+            line-height: 1.6;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(139, 69, 19, 0.1) 35px, rgba(139, 69, 19, 0.1) 70px),
+                repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(101, 67, 33, 0.1) 35px, rgba(101, 67, 33, 0.1) 70px);
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== NAVBAR ===== */
+        nav {
+            background: rgba(20, 10, 8, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 2px solid #8B4513;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #D4AF37;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.8);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            transform: translateY(-2px);
+            color: #D4AF37;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.8);
+        }
+
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #D4AF37;
+            box-shadow: 0 0 10px #D4AF37;
+        }
+
+        /* ===== PAGE HEADER ===== */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-header h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            color: #D4AF37;
+            text-shadow: 0 0 30px #D4AF37;
+        }
+
+        .page-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* ===== FILTER ===== */
+        .filter-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .filter-btn {
+            padding: 0.7rem 1.5rem;
+            margin: 0.3rem;
+            background: rgba(139, 69, 19, 0.3);
+            color: #fff;
+            border: 2px solid #8B4513;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: #D4AF37;
+            color: #3a1410;
+            border-color: #D4AF37;
+            transform: translateY(-2px);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
+        }
+
+        /* ===== GALLERY ===== */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .gallery-item.hidden {
+            display: none;
+        }
+
+        .gallery-image {
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            border: 2px solid #8B4513;
+            background: rgba(139, 69, 19, 0.25);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .gallery-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s;
+        }
+
+        .gallery-item:hover .gallery-image img {
+            transform: scale(1.1);
+        }
+
+        .gallery-coverlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 1.5rem;
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .gallery-item:hover .gallery-coverlay {
+            opacity: 1;
+        }
+
+        .gallery-coverlay h3 {
+            color: #D4AF37;
+            margin-bottom: 0.3rem;
+        }
+
+        .gallery-coverlay p {
+            font-size: 0.95rem;
+        }
+
+        .view-btn {
+            margin-top: 1rem;
+            padding: 0.5rem 1.5rem;
+            background: #D4AF37;
+            color: #3a1410;
+            border: none;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .view-btn:hover {
+            background: rgba(212, 175, 55, 0.9);
+            transform: scale(1.05);
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.7);
+        }
+
+        /* ===== CLOCK ===== */
+        .clock-container {
+            background: rgba(139, 69, 19, 0.3);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 3rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border: 2px solid #8B4513;
+            margin: 3rem 0;
+            text-align: center;
+        }
+
+        .digital-clock {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .time-unit {
+            background: rgba(212, 175, 55, 0.15);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            min-width: 100px;
+            text-align: center;
+            border: 2px solid #8B4513;
+            transition: transform 0.3s;
+        }
+
+        .time-unit:hover {
+            transform: scale(1.05);
+            background: rgba(212, 175, 55, 0.3);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+
+        .time-value {
+            font-size: 2.3rem;
+            font-weight: bold;
+            color: #D4AF37;
+            font-family: 'Courier New', monospace;
+        }
+
+        .time-label {
+            font-size: 0.9rem;
+            color: #ddd;
+            text-transform: uppercase;
+            margin-top: 0.5rem;
+            letter-spacing: 2px;
+        }
+
+        .date-display {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(212, 175, 55, 0.15);
+            border-radius: 12px;
+            border: 1px solid #8B4513;
+        }
+
+        .date-display .day {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #D4AF37;
+        }
+
+        .date-display .full-date {
+            font-size: 1.2rem;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            background: rgba(20, 10, 8, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            text-align: center;
+            color: white;
+            border-top: 2px solid #8B4513;
+            margin-top: 3rem;
+        }
+
+        footer .footer-subtitle {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        /* ===== MODAL ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: rgba(58, 20, 16, 0.95);
+            padding: 3rem;
+            border-radius: 25px;
+            text-align: center;
+            border: 3px solid #D4AF37;
+            max-width: 500px;
+            width: 90%;
+            color: #fff;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #D4AF37;
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            color: #D4AF37;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-container">
+            <div class="logo">Batik Nusantara</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="profile.html">Profile</a></li>
+                <li><a href="gallery.html" class="active">Gallery</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Gallery Batik</h1>
+            <p>Koleksi Batik Nusantara dari Berbagai Daerah</p>
+        </div>
+
+        <div class="filter-container">
+            <button class="filter-btn active" data-filter="all">Semua</button>
+            <button class="filter-btn" data-filter="tulis">Batik Tulis</button>
+            <button class="filter-btn" data-filter="cap">Batik Cap</button>
+            <button class="filter-btn" data-filter="modern">Modern</button>
+        </div>
+
+        <section class="gallery-section">
+            <div class="gallery-grid">
+
+                <div class="gallery-item" data-category="tulis modern">
+                    <div class="gallery-image">
+                        <img src="batikmodern.jpg" alt="Batik Modern">
+                        <div class="gallery-coverlay">
+                            <h3>Batik Kontemporer</h3>
+                            <p>Batik Tulis - Pekalongan</p>
+                            <button class="view-btn" onclick="openModal(0)">Lihat Detail</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gallery-item" data-category="cap klasik">
+                    <div class="gallery-image">
+                        <img src="megamendung.jpg" alt="Batik Mendung">
+                        <div class="gallery-coverlay">
+                            <h3>Batik Mega Mendung</h3>
+                            <p>Batik Cap - Cirebon</p>
+                            <button class="view-btn" onclick="openModal(1)">Lihat Detail</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gallery-item" data-category="tulis klasik">
+                    <div class="gallery-image">
+                        <img src="truntun.jpg" alt="Batik Truntun">
+                        <div class="gallery-coverlay">
+                            <h3>Batik Truntun</h3>
+                            <p>Batik Tulis - Yogyakarta</p>
+                            <button class="view-btn" onclick="openModal(2)">Lihat Detail</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gallery-item" data-category="cap modern">
+                    <div class="gallery-image">
+                        <img src="pesisir.jpg" alt="Batik Pesisir">
+                        <div class="gallery-coverlay">
+                            <h3>Batik Pesisir</h3>
+                            <p>Batik Cap - Pekalongan</p>
+                            <button class="view-btn" onclick="openModal(3)">Lihat Detail</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gallery-item" data-category="cap klasik">
+                    <div class="gallery-image">
+                        <img src="sogan.jpg" alt="Batik Sogan">
+                        <div class="gallery-coverlay">
+                            <h3>Batik Sogan</h3>
+                            <p>Batik Cap - Solo</p>
+                            <button class="view-btn" onclick="openModal(4)">Lihat Detail</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gallery-item" data-category="tulis modern">
+                    <div class="gallery-image">
+                        <img src="bali.jpg" alt="Batik Bali">
+                        <div class="gallery-coverlay">
+                            <h3>Batik Bali</h3>
+                            <p>Batik Tulis - Bali</p>
+                            <button class="view-btn" onclick="openModal(5)">Lihat Detail</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- CLOCK -->
+        <div class="clock-container">
+            <div class="digital-clock">
+                <div class="time-unit">
+                    <div class="time-value" id="hours">00</div>
+                    <div class="time-label">Jam</div>
+                </div>
+                <div class="time-unit">
+                    <div class="time-value" id="minutes">00</div>
+                    <div class="time-label">Menit</div>
+                </div>
+                <div class="time-unit">
+                    <div class="time-value" id="seconds">00</div>
+                    <div class="time-label">Detik</div>
+                </div>
+            </div>
+
+            <div class="date-display">
+                <div class="day" id="day">Hari</div>
+                <div class="full-date" id="fullDate">Tanggal</div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            © 2025 Dibuat oleh <strong>Adeelia Putri Marsya</strong> NIM: <strong>251011700075</strong> Kelas: <strong>01SIFP001</strong>
+        </p>
+        <p class="footer-subtitle">
+            Pemrograman Web 1 | UAS | Universitas Pamulang
+        </p>
+    </footer>
+
+    <!-- MODAL -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-close" onclick="closeModal()">×</div>
+            <div class="modal-title" id="modalTitle">Title</div>
+            <div class="modal-description" id="modalDescription">Description</div>
+        </div>
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // =======================
+        // DIGITAL CLOCK & DATE
+        // =======================
+        function updateClock() {
+            const now = new Date();
+
+            document.getElementById("hours").textContent = String(now.getHours()).padStart(2, '0');
+            document.getElementById("minutes").textContent = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById("seconds").textContent = String(now.getSeconds()).padStart(2, '0');
+
+            const days = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+            const months = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+
+            document.getElementById("day").textContent = days[now.getDay()];
+            document.getElementById("fullDate").textContent =
+                `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // =======================
+        // FILTER GALLERY
+        // =======================
+        const filterButtons = document.querySelectorAll(".filter-btn");
+        const galleryItems = document.querySelectorAll(".gallery-item");
+
+        filterButtons.forEach(btn => {
+            btn.addEventListener("click", () => {
+                filterButtons.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+
+                const filter = btn.getAttribute("data-filter");
+
+                galleryItems.forEach(item => {
+                    const categories = item.getAttribute("data-category");
+
+                    if (filter === "all" || categories.includes(filter)) {
+                        item.classList.remove("hidden");
+                    } else {
+                        item.classList.add("hidden");
+                    }
+                });
+            });
+        });
+
+        // =======================
+        // MODAL
+        // =======================
+        const galleryData = [
+            { title: "Batik Kontemporer", desc: "Batik tulis modern dari Pekalongan dengan motif kontemporer." },
+            { title: "Batik Mega Mendung", desc: "Motif awan khas Cirebon yang melambangkan ketenangan." },
+            { title: "Batik Truntum", desc: "Motif klasik Yogyakarta yang bermakna cinta yang tumbuh kembali." },
+            { title: "Batik Pesisir", desc: "Batik cap Pekalongan dengan warna cerah khas pesisir." },
+            { title: "Batik Sogan", desc: "Motif klasik Solo dengan warna coklat sogan yang elegan." },
+            { title: "Batik Bali", desc: "Batik tulis modern dengan sentuhan budaya Bali." }
+        ];
+
+        const modal = document.getElementById("modal");
+        const modalTitle = document.getElementById("modalTitle");
+        const modalDescription = document.getElementById("modalDescription");
+
+        function openModal(index) {
+            modalTitle.textContent = galleryData[index].title;
+            modalDescription.textContent = galleryData[index].desc;
+            modal.classList.add("active");
+        }
+
+        function closeModal() {
+            modal.classList.remove("active");
+        }
+    </script>
+
+</body>
+</html>
